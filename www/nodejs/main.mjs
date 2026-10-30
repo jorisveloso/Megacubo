@@ -778,7 +778,13 @@ const initElectronWindow = async () => {
             return
         }
         console.log('🌉 Bridge ready, loading URL on port:', port)
-        window.loadURL('http://127.0.0.1:'+ port +'/renderer/electron.html', { userAgent: renderer.ui.ua })
+        const prototypeURLParams = new URLSearchParams()
+        if (process.argv.includes('--prototype-netflix')) {
+            prototypeURLParams.set('prototype', 'netflix')
+        }
+        const query = prototypeURLParams.toString()
+        const rendererURL = 'http://127.0.0.1:' + port + '/renderer/electron.html' + (query ? ('?' + query) : '')
+        window.loadURL(rendererURL, { userAgent: renderer.ui.ua })
         window.setAlwaysOnTop(true) // trick to take focus
         window.focus()
         window.setAlwaysOnTop(false)

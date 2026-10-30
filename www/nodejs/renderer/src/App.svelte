@@ -5,6 +5,7 @@
     import Theme from './Theme.svelte'
     import Menu from './Menu.svelte'
     import Osd from './Osd.svelte'
+    import NetflixPrototypeSwitcher from './NetflixPrototypeSwitcher.svelte'
     
     // Ensure DOM is ready before rendering components
     let mounted = $state(false);
@@ -23,6 +24,7 @@
 <Menu />
 <Osd />
 <DragDrop />
+<NetflixPrototypeSwitcher />
 {/if}
 <style global>
 :root {
@@ -312,4 +314,5 @@ body.miniplayer-android {
 body.fullscreen.idle {
     cursor: none !important;
 }
+
 </style>

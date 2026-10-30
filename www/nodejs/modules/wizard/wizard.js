@@ -39,9 +39,11 @@ class Wizard extends EventEmitter {
 
         // SCREEN 2: Mode selection
         const mode = await this.showModeSelection();
-        if (!mode) {
-            // User canceled, go back to the beginning
-            return this.lists();
+        if (!mode || mode === 'skip') {
+            // Blank start: do not auto-load providers or lists. Let the user import a list explicitly later.
+            this.active = false;
+            config.set('setup-completed', false);
+            return false;
         }
 
         // SCREEN 3: Confirmation (only for public lists)
@@ -94,14 +96,13 @@ class Wizard extends EventEmitter {
     async showModeSelection() {
         const opts = [
             { template: 'question', text: lang.MODE_SELECTION_TITLE, fa: 'fas fa-question-circle' },
-            // Option 1: Community lists (featured)
-            { template: 'option', text: lang.COMMUNITY_MODE_TITLE, details: lang.COMMUNITY_MODE_DESC, id: 'community', fa: 'fas fa-users' },
-            // Option 2: Own list (encouraged)
+            // Default: user-controlled flow. No provider is auto-added unless the user explicitly chooses it.
             { template: 'option', text: lang.OWN_LIST_MODE_TITLE, details: lang.OWN_LIST_MODE_DESC, id: 'own-list', fa: 'fas fa-plus-square' },
-            // Option 3: Public lists (less prominent)
-            { template: 'option', text: lang.PUBLIC_MODE_TITLE, details: lang.PUBLIC_MODE_DESC, id: 'public', fa: 'fas fa-globe' }
+            { template: 'option', text: lang.PUBLIC_MODE_TITLE, details: lang.PUBLIC_MODE_DESC, id: 'public', fa: 'fas fa-globe' },
+            { template: 'option', text: lang.COMMUNITY_MODE_TITLE, details: lang.COMMUNITY_MODE_DESC, id: 'community', fa: 'fas fa-users' },
+            { template: 'option', text: lang.SKIP, id: 'skip', fa: 'fas fa-forward' }
         ];
-        const choice = await menu.dialog(opts, 'community', true);
+        const choice = await menu.dialog(opts, 'own-list', true);
         return choice;
     }
 
@@ -180,22 +181,15 @@ class Wizard extends EventEmitter {
 
         switch (mode) {
             case 'community':
-                // Enable community mode
+                // Enable community mode only when the user explicitly chooses it.
                 renderer.ui.localEmit('lists-manager', 'agree');
                 break;
             case 'own-list':
-                // Request list from user immediately
-                try {
-                    await manager.addListDialog(false);
-                } catch (err) {
-                    console.error('Failed to add list:', err);
-                    menu.displayErr(lang.INVALID_URL_MSG);
-                    // If it fails, return to start to ask mode again
-                    return this.lists();
-                }
+                // Keep the app empty until the user imports a list on purpose.
+                // This avoids auto-loading third-party providers or public lists without explicit consent.
                 break;
             case 'public':
-                // Already configured in loading screen
+                // Public lists are optional and should be explicitly chosen.
                 break;
         }
 

@@ -1100,6 +1100,11 @@ class Manager extends ManagerFetch {
             this.resetCommunityAutoRetryAttempts();
             return;
         }
+        const hasExplicitUserChoice = Boolean(config.get('community-mode-lists-amount')) || config.get('public-lists') === 'only' || (Array.isArray(config.get('lists')) && config.get('lists').length > 0);
+        if (!hasExplicitUserChoice) {
+            this.resetNoListsAutoRetryState();
+            return;
+        }
         const loader = this.master?.loader;
         if (!loader) {
             return;

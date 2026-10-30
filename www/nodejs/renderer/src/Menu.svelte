@@ -382,6 +382,24 @@
         </div>
     </a>
     <div id="menu">
+        <aside class="netflix-sidebar" aria-label="Navegação principal">
+            <div class="netflix-sidebar-header">
+                <div class="netflix-brand">Megacubo</div>
+                <button class="netflix-sidebar-toggle" aria-label="Recolher menu" onclick={() => document.body.classList.toggle('netflix-sidebar-collapsed')}>
+                    <i class="fas fa-angle-left"></i>
+                </button>
+            </div>
+            <nav class="netflix-sidebar-nav" aria-label="Categorias">
+                <button class="nav-item active" type="button"><i class="fas fa-film"></i><span>Filmes</span></button>
+                <button class="nav-item" type="button"><i class="fas fa-tv"></i><span>Séries</span></button>
+                <button class="nav-item" type="button"><i class="fas fa-basketball-ball"></i><span>Esportes</span></button>
+                <button class="nav-item" type="button"><i class="fas fa-futbol"></i><span>Eventos</span></button>
+                <button class="nav-item" type="button"><i class="fas fa-music"></i><span>Música</span></button>
+                <button class="nav-item" type="button"><i class="fas fa-star"></i><span>Favoritos</span></button>
+                <button class="nav-item" type="button"><i class="fas fa-list"></i><span>Listas</span></button>
+                <button class="nav-item" type="button"><i class="fas fa-cog"></i><span>Opções</span></button>
+            </nav>
+        </aside>
         <span class="menu-omni" style="flex: 1;">
             <span id="menu-search">
                 <input type="text" id="menu-omni-input" placeholder="{lang.WHAT_TO_WATCH}" />
@@ -416,6 +434,38 @@
         </div>
         <div class="content-out">
             <content role="region" onmouseenter={() => main?.menu?.sideMenu(false)}>
+                <div class="netflix-prototype-shell" aria-hidden="true">
+                    <div class="netflix-prototype-topbar">
+                        <div class="netflix-brand">MEGACUBO</div>
+                        <div class="netflix-nav">
+                            <span>Início</span>
+                            <span>Séries</span>
+                            <span>Filmes</span>
+                            <span>Minha Lista</span>
+                        </div>
+                    </div>
+                    <div class="netflix-prototype-hero">
+                        <div class="netflix-hero-kicker">SÉRIE EM DESTAQUE</div>
+                        <h2>Noite de Ação</h2>
+                        <p>Uma vitrine no estilo Netflix: cards grandes, foco por escala e navegação visual por catálogo.</p>
+                        <div class="netflix-hero-actions">
+                            <span class="netflix-action-play"><i class="fas fa-play"></i> Assistir</span>
+                            <span class="netflix-action-info"><i class="fas fa-info-circle"></i> Mais informações</span>
+                        </div>
+                    </div>
+                    {#if (items || []).length === 0}
+                        <div class="netflix-empty-state" aria-live="polite">
+                            <div class="netflix-empty-badge">{lang.NO_CHANNELS_YET || 'Sem canais ainda'}</div>
+                            <h3>{lang.NO_CHANNELS_YET_TITLE || 'Vamos começar com sua lista?'}</h3>
+                            <p>{lang.NO_CHANNELS_YET_DESC || 'Importe uma lista M3U ou escolha uma opção aberta e explícita.'}</p>
+                            <div class="netflix-empty-actions">
+                                <button type="button" class="netflix-empty-action primary" onclick={() => main?.menu?.open?.(lang.MY_LISTS)}>{lang.IMPORT_MY_LIST || 'Importar minha lista'}</button>
+                                <button type="button" class="netflix-empty-action secondary" onclick={() => main?.menu?.open?.(lang.MY_LISTS)}>{lang.EXPLORE_PUBLIC_LISTS || 'Explorar listas públicas'}</button>
+                            </div>
+                        </div>
+                    {/if}
+                    <div class="netflix-rail-title rail-1">Continuar assistindo</div>
+                </div>
                 <VirtualGrid width="var(--menu-width)" height="var(--menu-height)" items={items || []} let:item itemWidth={itemWidth} itemHeight={itemHeight} bind:this={virtualGrid} bind:range bind:isTop bind:isBottom bind:refresh>
                     {#snippet children(item)}
                     <a href="{item.url}" tabindex="{item.tabindex}" class="{item.class} {selectedIndex == item.tabindex ? 'selected' : ''}" title="{item.name}" aria-label="{item.name}" 
@@ -1213,5 +1263,338 @@ span.entry-status-flag-failure {
     min-height: 100%;
     display: flex;
     justify-content: center;
+}
+
+/* Netflix prototype mode (enabled by body.prototype-netflix). */
+body.prototype-netflix {
+    --entries-per-row: 6;
+    --entries-per-col: 3;
+    --menu-padding-left: 1.2vw;
+    --menu-padding-right: 1.2vw;
+}
+body.prototype-netflix #main {
+    background: linear-gradient(180deg, #0b0b0f 0%, #141421 45%, #0a0a0f 100%) !important;
+}
+body.prototype-netflix #menu {
+    border-radius: 0 !important;
+}
+body:not(.prototype-netflix) .netflix-sidebar {
+    display: none !important;
+}
+body.prototype-netflix .netflix-sidebar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 18rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1.2rem 0.9rem 1.2rem 0.9rem;
+    box-sizing: border-box;
+    background: rgba(10, 10, 12, 0.96);
+    border-right: 1px solid rgba(255, 255, 255, 0.08);
+    z-index: 3;
+    transition: width 0.2s ease, transform 0.2s ease;
+}
+body.prototype-netflix .netflix-sidebar-collapsed .netflix-sidebar {
+    width: 5.5rem;
+}
+body.prototype-netflix .netflix-sidebar-collapsed .netflix-sidebar .netflix-brand,
+body.prototype-netflix .netflix-sidebar-collapsed .netflix-sidebar .nav-item span {
+    display: none;
+}
+body.prototype-netflix .netflix-sidebar-collapsed .netflix-sidebar .nav-item {
+    justify-content: center;
+}
+body.prototype-netflix .netflix-sidebar-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 2.75rem;
+    padding: 0.2rem 0.35rem 0.6rem;
+}
+body.prototype-netflix .netflix-brand {
+    color: #e50914;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+}
+body.prototype-netflix .netflix-sidebar-toggle {
+    width: 2rem;
+    height: 2rem;
+    border: 1px solid rgba(255,255,255,0.18);
+    border-radius: 999px;
+    background: rgba(255,255,255,0.04);
+    color: #fff;
+    cursor: pointer;
+}
+body.prototype-netflix .netflix-sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+    margin-top: 0.6rem;
+}
+body.prototype-netflix .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    width: 100%;
+    padding: 0.9rem 0.8rem;
+    border: 0;
+    border-radius: 0.9rem;
+    color: rgba(255,255,255,0.8);
+    background: transparent;
+    font-size: 0.95rem;
+    text-align: left;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease, transform 0.15s ease;
+}
+body.prototype-netflix .nav-item.active {
+    background: linear-gradient(90deg, rgba(255,255,255,0.12), rgba(255,255,255,0.03));
+    color: #fff;
+}
+body.prototype-netflix .nav-item:hover,
+body.prototype-netflix .nav-item:focus {
+    background: rgba(255,255,255,0.06);
+    color: #fff;
+}
+body.prototype-netflix .netflix-prototype-shell {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 42vh;
+    z-index: 2;
+    pointer-events: none;
+    display: block;
+}
+body:not(.prototype-netflix) .netflix-prototype-shell {
+    display: none;
+}
+body.prototype-netflix .netflix-prototype-topbar {
+    display: flex;
+    align-items: center;
+    gap: 2.2rem;
+    font-size: calc(var(--menu-entry-name-font-size) * 0.85);
+    padding: 1.1rem 0.3rem 0 0.3rem;
+    color: #fff;
+}
+body.prototype-netflix .netflix-brand {
+    color: #e50914;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+}
+body.prototype-netflix .netflix-nav {
+    display: inline-flex;
+    gap: 1.2rem;
+    opacity: 0.94;
+}
+body.prototype-netflix .netflix-prototype-hero {
+    margin-top: 4.5vh;
+    max-width: 42rem;
+    color: #fff;
+    text-shadow: 0 2px 12px rgba(0, 0, 0, 0.8);
+}
+body.prototype-netflix .netflix-hero-kicker {
+    letter-spacing: 0.18em;
+    font-size: 0.72rem;
+    font-weight: 700;
+    opacity: 0.84;
+}
+body.prototype-netflix .netflix-prototype-hero h2 {
+    margin: 0.4rem 0 0.3rem 0;
+    font-size: 2.2rem;
+    line-height: 1.1;
+}
+body.prototype-netflix .netflix-prototype-hero p {
+    margin: 0;
+    font-size: 0.92rem;
+    opacity: 0.9;
+    max-width: 36rem;
+}
+body.prototype-netflix .netflix-hero-actions {
+    margin-top: 1rem;
+    display: inline-flex;
+    gap: 0.8rem;
+}
+body.prototype-netflix .netflix-hero-actions span {
+    border-radius: 4px;
+    font-size: 0.84rem;
+    padding: 0.55rem 0.9rem;
+    font-weight: 700;
+}
+body.prototype-netflix .netflix-action-play {
+    background: #fff;
+    color: #000;
+}
+body.prototype-netflix .netflix-action-info {
+    background: rgba(109, 109, 110, 0.7);
+    color: #fff;
+}
+body.prototype-netflix .netflix-empty-state {
+    position: relative;
+    z-index: 3;
+    margin-top: 1.9rem;
+    max-width: 32rem;
+    padding: 1.2rem 1.3rem;
+    border-radius: 1.2rem;
+    background: rgba(17, 17, 22, 0.76);
+    border: 1px solid rgba(255,255,255,0.08);
+    box-shadow: 0 1rem 2.2rem rgba(0,0,0,0.38);
+    color: #fff;
+    backdrop-filter: blur(8px);
+}
+body.prototype-netflix .netflix-empty-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.32rem 0.7rem;
+    border-radius: 999px;
+    border: 1px solid rgba(229, 9, 20, 0.6);
+    background: rgba(229, 9, 20, 0.12);
+    color: #ffb3b8;
+    font-size: 0.68rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    font-weight: 700;
+}
+body.prototype-netflix .netflix-empty-state h3 {
+    margin: 0.8rem 0 0.5rem;
+    font-size: 1.9rem;
+    line-height: 1.1;
+}
+body.prototype-netflix .netflix-empty-state p {
+    margin: 0;
+    color: rgba(255,255,255,0.8);
+    line-height: 1.5;
+}
+body.prototype-netflix .netflix-empty-actions {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    margin-top: 1rem;
+}
+body.prototype-netflix .netflix-empty-action {
+    border: 0;
+    border-radius: 0.7rem;
+    padding: 0.8rem 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.12s ease, filter 0.12s ease;
+}
+body.prototype-netflix .netflix-empty-action:hover,
+body.prototype-netflix .netflix-empty-action:focus {
+    transform: translateY(-1px);
+    filter: brightness(1.08);
+}
+body.prototype-netflix .netflix-empty-action.primary {
+    background: #fff;
+    color: #111;
+}
+body.prototype-netflix .netflix-empty-action.secondary {
+    background: rgba(255,255,255,0.08);
+    color: #fff;
+    border: 1px solid rgba(255,255,255,0.12);
+}
+body.prototype-netflix .netflix-rail-title {
+    margin-top: 2.7rem;
+    color: #fff;
+    font-size: 1.02rem;
+    font-weight: 700;
+}
+body.prototype-netflix #menu nav,
+body.prototype-netflix #menu .side-menu-toggle {
+    display: none !important;
+}
+body.prototype-netflix #menu .content-out {
+    width: calc(100% - 18rem) !important;
+    margin-left: 18rem;
+    border-radius: 0 !important;
+    background: transparent !important;
+}
+body.prototype-netflix .netflix-sidebar-collapsed #menu .content-out {
+    width: calc(100% - 5.5rem) !important;
+    margin-left: 5.5rem;
+}
+body.prototype-netflix #menu .menu-omni {
+    display: none !important;
+}
+body.prototype-netflix #menu svelte-virtual-grid-contents {
+    padding-top: 37vh !important;
+}
+body.prototype-netflix #menu svelte-virtual-grid-contents a {
+    overflow: visible !important;
+}
+body.prototype-netflix #menu svelte-virtual-grid-contents a span.entry-wrapper {
+    width: 96% !important;
+    height: 94% !important;
+    border-radius: 10px !important;
+    border: 1px solid rgba(255, 255, 255, 0.06) !important;
+    background: #111 !important;
+    box-shadow: 0 0.5rem 1.2rem rgba(0, 0, 0, 0.5) !important;
+}
+body.prototype-netflix #menu svelte-virtual-grid-contents a.selected span.entry-wrapper {
+    background: #1a1a22 !important;
+    border-color: rgba(255, 255, 255, 0.22) !important;
+    box-shadow: 0 0.8rem 2rem rgba(0, 0, 0, 0.65) !important;
+}
+body.prototype-netflix #menu svelte-virtual-grid-contents a.selected > span {
+    transform: scale(1.08) !important;
+    z-index: 4 !important;
+}
+body.prototype-netflix #menu svelte-virtual-grid-contents a:nth-child(n + 13):nth-child(-n + 18) {
+    margin-top: 2.2rem !important;
+}
+body.prototype-netflix #menu svelte-virtual-grid-contents a:nth-child(n + 13):nth-child(-n + 18)::before {
+    content: "Populares";
+    position: absolute;
+    top: -1.6rem;
+    left: 0.25rem;
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 700;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.8);
+}
+body.prototype-netflix #menu content a .entry-icon-image {
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    border-radius: inherit !important;
+    justify-content: center !important;
+    left: 0 !important;
+    bottom: 0 !important;
+}
+body.prototype-netflix #menu content a .entry-icon-image img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    opacity: 0.92 !important;
+}
+body.prototype-netflix #menu content a .entry-icon-image i {
+    font-size: calc(var(--menu-entry-icon-innersize) * 0.95) !important;
+    opacity: 0.85 !important;
+}
+body.prototype-netflix #menu content a .entry-data-in {
+    bottom: 0 !important;
+    top: auto !important;
+    text-align: left !important;
+    padding: 0.7rem !important;
+    background: linear-gradient(0deg, rgba(0, 0, 0, 0.95) 0%, rgba(0, 0, 0, 0.08) 72%) !important;
+}
+body.prototype-netflix #menu content a span.entry-name,
+body.prototype-netflix #menu content a span.entry-details {
+    text-align: left !important;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.95) !important;
+}
+body.prototype-netflix #menu content a span.entry-name {
+    font-weight: 700 !important;
+    line-height: 120% !important;
+}
+body.prototype-netflix #menu content a span.entry-details {
+    opacity: 0.82 !important;
+}
+body.prototype-netflix #menu #arrow {
+    display: none !important;
 }
 </style>
